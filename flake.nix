@@ -1,22 +1,26 @@
 {
-  description = "My personal NUR repository";
-  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
-  outputs = { self, nixpkgs }:
+  description = "wd";
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    flake-utils.url = "github:numtide/flake-utils";
+  };
+  outputs = { self, nixpkgs, flake-utils }:
     let
       systems = [
         "x86_64-linux"
-        "i686-linux"
         "x86_64-darwin"
-        "aarch64-linux"
-        "armv6l-linux"
-        "armv7l-linux"
       ];
-      forAllSystems = f: nixpkgs.lib.genAttrs systems (system: f system);
     in
-    {
-      legacyPackages = forAllSystems (system: import ./default.nix {
-        pkgs = import nixpkgs { inherit system; };
-      });
-      packages = forAllSystems (system: nixpkgs.lib.filterAttrs (_: v: nixpkgs.lib.isDerivation v) self.legacyPackages.${system});
-    };
+    flake-utils.lib.eachSystem systems (system:
+      let pkgs = import nixpkgs { inherit system; };
+      in {
+        legacyPackages = import ./default.nix {
+          inherit pkgs;
+        };
+        packages = nixpkgs.lib.filterAttrs (_: v: nixpkgs.lib.isDerivation v) self.legacyPackages;
+        devShell = pkgs.mkShell {
+          packages = with pkgs; [ nixpkgs-fmt ];
+        };
+      }
+    );
 }
