@@ -1,4 +1,8 @@
-{ stdenv, fetchzip, lib }:
+{
+  stdenv,
+  fetchzip,
+  lib,
+}:
 
 stdenv.mkDerivation rec {
   pname = "wd";
@@ -12,7 +16,7 @@ stdenv.mkDerivation rec {
   installPhase = "make -C linux install out=$out";
   meta = with lib; {
     description = "This is a command to run another command on a specified directory.";
-    homepage = https://github.com/kakkun61/wd;
+    homepage = "https://github.com/kakkun61/wd";
     changelog = "https://github.com/kakkun61/wd/releases/tag/${version}";
     license = licenses.gpl3;
     maintainers = [
